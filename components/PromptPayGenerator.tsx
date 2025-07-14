@@ -13,6 +13,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageToggle } from '@/components/ui/language-toggle';
 import { Footer } from '@/components/footer';
+import { PWAInstallPrompt } from '@/components/pwa-install-prompt';
+import { PWAUpdatePrompt } from '@/components/pwa-update-prompt';
+import { OfflineIndicator } from '@/components/offline-indicator';
 import { Download, QrCode, Smartphone, CreditCard, Wallet, AlertCircle } from 'lucide-react';
 import { useSafeTranslation } from '@/components/safe-translation';
 
@@ -288,6 +291,9 @@ export default function PromptPayGenerator() {
         </div>
       </div>
       <Footer />
+      <PWAInstallPrompt />
+      <PWAUpdatePrompt />
+      <OfflineIndicator />
     </div>
   );
 }
