@@ -1,0 +1,46 @@
+{
+  "app": {
+    "title": "Rub Tung QR PromptPay",
+    "description": "Generate QR codes for Thai PromptPay payments"
+  },
+  "form": {
+    "paymentDetails": "Payment Details",
+    "paymentDetailsDescription": "Enter the recipient information and amount",
+    "targetLabel": "Phone Number / Tax ID / E-wallet ID",
+    "targetPlaceholder": "0812345678",
+    "targetExample": "Examples: 0812345678, 1234567890123, or e-wallet ID",
+    "amountLabel": "Amount (Optional)",
+    "amountPlaceholder": "0.00",
+    "amountExample": "Leave empty for flexible amount",
+    "generateButton": "Generate QR Code",
+    "generating": "Generating..."
+  },
+  "qrCode": {
+    "title": "Generated QR Code",
+    "description": "Your PromptPay QR code will appear here",
+    "resultTitle": "Your PromptPay QR Code",
+    "paymentTo": "Payment to:",
+    "amount": "Amount:",
+    "type": "Type:",
+    "payload": "Payload:",
+    "downloadButton": "Download QR Code",
+    "emptyState": "Enter payment details and click \"Generate QR Code\"",
+    "flexibleAmount": "Flexible amount"
+  },
+  "paymentTypes": {
+    "phone": "Phone Number",
+    "taxId": "Tax ID",
+    "ewallet": "E-wallet ID"
+  },
+  "currency": {
+    "symbol": "฿"
+  },
+  "actions": {
+    "toggleTheme": "Toggle theme",
+    "toggleLanguage": "Toggle language"
+  },
+  "footer": {
+    "copyright": "© 2025 Rub Tung QR PromptPay. All rights reserved.",
+    "madeWith": "Made with ❤️ for Thailand"
+  }
+}

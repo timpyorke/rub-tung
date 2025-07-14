@@ -11,9 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { LanguageToggle } from '@/components/ui/language-toggle';
+import { Footer } from '@/components/footer';
 import { Download, QrCode, Smartphone, CreditCard, Wallet, AlertCircle } from 'lucide-react';
+import { useSafeTranslation } from '@/components/safe-translation';
 
 export default function PromptPayGenerator() {
+  const { t } = useSafeTranslation();
   const [target, setTarget] = useState('');
   const [amount, setAmount] = useState('');
   const [qrDataURL, setQrDataURL] = useState('');
@@ -69,13 +73,27 @@ export default function PromptPayGenerator() {
     return clean;
   };
 
+  const getTranslatedTargetType = (target: string): string => {
+    const targetType = getTargetType(target);
+    switch (targetType) {
+      case 'phone':
+        return t('paymentTypes.phone');
+      case 'tax':
+        return t('paymentTypes.taxId');
+      case 'ewallet':
+        return t('paymentTypes.ewallet');
+      default:
+        return t('paymentTypes.phone');
+    }
+  };
+
   const getTargetIcon = (targetType: string) => {
     switch (targetType) {
-      case 'Phone Number':
+      case t('paymentTypes.phone'):
         return <Smartphone className="h-4 w-4" />;
-      case 'Tax ID':
+      case t('paymentTypes.taxId'):
         return <CreditCard className="h-4 w-4" />;
-      case 'E-wallet ID':
+      case t('paymentTypes.ewallet'):
         return <Wallet className="h-4 w-4" />;
       default:
         return <QrCode className="h-4 w-4" />;
@@ -83,34 +101,36 @@ export default function PromptPayGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="container max-w-4xl mx-auto">
-        <div className="flex justify-end mb-4">
-          <ThemeToggle />
-        </div>
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="p-3 rounded-full bg-primary/10 mr-3">
-              <QrCode className="h-8 w-8 text-primary" />
-            </div>
-            <h1 className="text-4xl font-bold tracking-tight">
-              Rub Tung
-            </h1>
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="container max-w-4xl mx-auto">
+          <div className="flex justify-end gap-2 mb-4">
+            <LanguageToggle />
+            <ThemeToggle />
           </div>
-          <p className="text-xl text-muted-foreground">
-            Generate QR codes for Thai PromptPay payments
-          </p>
-        </div>
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <div className="p-3 rounded-full bg-primary/10 mr-3">
+                <QrCode className="h-8 w-8 text-primary" />
+              </div>
+              <h1 className="text-4xl font-bold tracking-tight">
+                {t('app.title')}
+              </h1>
+            </div>
+            <p className="text-xl text-muted-foreground">
+              {t('app.description')}
+            </p>
+          </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
           <Card className="md:col-span-1">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Smartphone className="h-5 w-5" />
-                Payment Details
+                {t('form.paymentDetails')}
               </CardTitle>
               <CardDescription>
-                Enter the recipient information and amount
+                {t('form.paymentDetailsDescription')}
               </CardDescription>
             </CardHeader>
             
@@ -118,43 +138,43 @@ export default function PromptPayGenerator() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="target" className="text-sm font-medium">
-                    Phone Number / Tax ID / E-wallet ID
+                    {t('form.targetLabel')}
                   </Label>
                   <Input
                     type="text"
                     id="target"
                     value={target}
                     onChange={(e) => setTarget(formatTargetInput(e.target.value))}
-                    placeholder="0812345678"
+                    placeholder={t('form.targetPlaceholder')}
                     required
                     className="w-full"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Examples: 0812345678, 1234567890123, or e-wallet ID
+                    {t('form.targetExample')}
                   </p>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="amount" className="text-sm font-medium">
-                    Amount (Optional)
+                    {t('form.amountLabel')}
                   </Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                      ฿
+                      {t('currency.symbol')}
                     </span>
                     <Input
                       type="number"
                       id="amount"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      placeholder="0.00"
+                      placeholder={t('form.amountPlaceholder')}
                       step="0.01"
                       min="0"
                       className="w-full pl-8"
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Leave empty for flexible amount
+                    {t('form.amountExample')}
                   </p>
                 </div>
 
@@ -167,12 +187,12 @@ export default function PromptPayGenerator() {
                   {isLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Generating...
+                      {t('form.generating')}
                     </>
                   ) : (
                     <>
                       <QrCode className="h-4 w-4 mr-2" />
-                      Generate QR Code
+                      {t('form.generateButton')}
                     </>
                   )}
                 </Button>
@@ -193,10 +213,10 @@ export default function PromptPayGenerator() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <QrCode className="h-5 w-5" />
-                Generated QR Code
+                {t('qrCode.title')}
               </CardTitle>
               <CardDescription>
-                Your PromptPay QR code will appear here
+                {t('qrCode.description')}
               </CardDescription>
             </CardHeader>
             
@@ -215,29 +235,29 @@ export default function PromptPayGenerator() {
                   
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Payment to:</span>
+                      <span className="text-sm font-medium">{t('qrCode.paymentTo')}</span>
                       <span className="text-sm">{formatDisplayTarget(target)}</span>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Amount:</span>
+                      <span className="text-sm font-medium">{t('qrCode.amount')}</span>
                       <span className="text-sm">
-                        {amount ? `฿${parseFloat(amount).toFixed(2)}` : 'Flexible amount'}
+                        {amount ? `${t('currency.symbol')}${parseFloat(amount).toFixed(2)}` : t('qrCode.flexibleAmount')}
                       </span>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Type:</span>
+                      <span className="text-sm font-medium">{t('qrCode.type')}</span>
                       <Badge variant="secondary" className="flex items-center gap-1">
-                        {getTargetIcon(getTargetType(target))}
-                        {getTargetType(target)}
+                        {getTargetIcon(getTranslatedTargetType(target))}
+                        {getTranslatedTargetType(target)}
                       </Badge>
                     </div>
                     
                     <Separator />
                     
                     <div className="space-y-2">
-                      <span className="text-sm font-medium">Payload:</span>
+                      <span className="text-sm font-medium">{t('qrCode.payload')}</span>
                       <div className="p-2 bg-muted rounded text-xs font-mono break-all">
                         {payload}
                       </div>
@@ -251,21 +271,23 @@ export default function PromptPayGenerator() {
                     size="lg"
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    Download QR Code
+                    {t('qrCode.downloadButton')}
                   </Button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <QrCode className="h-12 w-12 text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">
-                    Enter payment details and click "Generate QR Code"
+                    {t('qrCode.emptyState')}
                   </p>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }
