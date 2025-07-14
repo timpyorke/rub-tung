@@ -1,4 +1,4 @@
-# PromptPay QR Generator
+# Rub Tung
 
 A Next.js application for generating Thai PromptPay QR codes.
 
@@ -40,7 +40,8 @@ This application implements the EMV QR Code specification for PromptPay payments
 - Next.js 14
 - React 18
 - TypeScript
-- CSS Modules
+- Tailwind CSS
+- shadcn/ui components
 - QRCode.js library
 
 ## Deployment
