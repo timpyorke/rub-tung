@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Download, QrCode, Smartphone, CreditCard, Wallet, AlertCircle } from 'lucide-react';
 
 export default function PromptPayGenerator() {
@@ -84,6 +85,9 @@ export default function PromptPayGenerator() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="container max-w-4xl mx-auto">
+        <div className="flex justify-end mb-4">
+          <ThemeToggle />
+        </div>
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <div className="p-3 rounded-full bg-primary/10 mr-3">
@@ -200,7 +204,7 @@ export default function PromptPayGenerator() {
               {qrDataURL ? (
                 <div className="space-y-4">
                   <div className="flex justify-center">
-                    <div className="p-4 bg-white rounded-lg shadow-sm border">
+                    <div className="p-4 bg-white dark:bg-gray-900 rounded-lg shadow-sm border">
                       <img 
                         src={qrDataURL} 
                         alt="PromptPay QR Code" 
