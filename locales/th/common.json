@@ -1,0 +1,46 @@
+{
+  "app": {
+    "title": "รับตัง QR PromptPay",
+    "description": "สร้าง QR Code สำหรับการชำระเงินผ่าน PromptPay"
+  },
+  "form": {
+    "paymentDetails": "รายละเอียดการชำระเงิน",
+    "paymentDetailsDescription": "กรอกข้อมูลผู้รับและจำนวนเงิน",
+    "targetLabel": "เบอร์โทรศัพท์ | เลขประจำตัวผู้เสียภาษี | E-wallet ID",
+    "targetPlaceholder": "0812345678",
+    "targetExample": "ตัวอย่าง: 0812345678, 1234567890123, หรือ e-wallet ID",
+    "amountLabel": "จำนวนเงิน (ไม่บังคับ)",
+    "amountPlaceholder": "0.00",
+    "amountExample": "เว้นว่างไว้สำหรับจำนวนเงินแบบยืดหยุ่น",
+    "generateButton": "สร้าง QR Code",
+    "generating": "กำลังสร้าง..."
+  },
+  "qrCode": {
+    "title": "QR Code ที่สร้างขึ้น",
+    "description": "PromptPay QR code ของคุณจะปรากฏที่นี่",
+    "resultTitle": "PromptPay QR Code ของคุณ",
+    "paymentTo": "ชำระเงินให้:",
+    "amount": "จำนวนเงิน:",
+    "type": "ประเภท:",
+    "payload": "Payload:",
+    "downloadButton": "ดาวน์โหลด QR Code",
+    "emptyState": "กรอกรายละเอียดการชำระเงินและคลิก \"สร้าง QR Code\"",
+    "flexibleAmount": "จำนวนเงินแบบยืดหยุ่น"
+  },
+  "paymentTypes": {
+    "phone": "เบอร์โทรศัพท์",
+    "taxId": "เลขประจำตัวผู้เสียภาษี",
+    "ewallet": "E-wallet ID"
+  },
+  "currency": {
+    "symbol": "฿"
+  },
+  "actions": {
+    "toggleTheme": "เปลี่ยนธีม",
+    "toggleLanguage": "เปลี่ยนภาษา"
+  },
+  "footer": {
+    "copyright": "© 2025 รับตัง QR PromptPay สงวนลิขสิทธิ์",
+    "madeWith": "สร้างด้วยความรักสำหรับประเทศไทย ❤️"
+  }
+}
