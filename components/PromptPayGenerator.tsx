@@ -105,7 +105,7 @@ export default function PromptPayGenerator() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-2 sm:p-4">
         <div className="container max-w-4xl mx-auto">
           <div className="flex justify-end gap-2 mb-4">
             <LanguageToggle />
@@ -144,13 +144,15 @@ export default function PromptPayGenerator() {
                     {t('form.targetLabel')}
                   </Label>
                   <Input
-                    type="text"
+                    type="tel"
                     id="target"
                     value={target}
                     onChange={(e) => setTarget(formatTargetInput(e.target.value))}
                     placeholder={t('form.targetPlaceholder')}
                     required
                     className="w-full"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                   />
                   <p className="text-xs text-muted-foreground">
                     {t('form.targetExample')}
