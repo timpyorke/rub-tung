@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import QRCode from 'qrcode';
-import { generatePayload, formatDisplayTarget, getTargetType } from '@/lib/promptpay';
+import { generatePayload, getTargetType } from '@/lib/promptpay';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +22,7 @@ import { useSafeTranslation } from '@/components/safe-translation';
 export default function PromptPayGenerator() {
   const { t } = useSafeTranslation();
   const [target, setTarget] = useState('');
+  const [displayTarget, setDisplayTarget] = useState('');
   const [amount, setAmount] = useState('');
   const [qrDataURL, setQrDataURL] = useState('');
   const [error, setError] = useState('');
@@ -66,14 +67,18 @@ export default function PromptPayGenerator() {
     }
   };
 
-  const formatTargetInput = (value: string) => {
+  const handleTargetChange = (value: string) => {
     const clean = value.replace(/[^0-9]/g, '');
+    setTarget(clean);
+    
+    // Format for display
     if (clean.length === 10 && clean.startsWith('0')) {
-      return clean.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+      setDisplayTarget(clean.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'));
     } else if (clean.length === 13) {
-      return clean.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, '$1-$2-$3-$4-$5');
+      setDisplayTarget(clean.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, '$1-$2-$3-$4-$5'));
+    } else {
+      setDisplayTarget(clean);
     }
-    return clean;
   };
 
   const getTranslatedTargetType = (target: string): string => {
@@ -146,13 +151,12 @@ export default function PromptPayGenerator() {
                   <Input
                     type="tel"
                     id="target"
-                    value={target}
-                    onChange={(e) => setTarget(formatTargetInput(e.target.value))}
+                    value={displayTarget}
+                    onChange={(e) => handleTargetChange(e.target.value)}
                     placeholder={t('form.targetPlaceholder')}
                     required
                     className="w-full"
                     inputMode="numeric"
-                    pattern="[0-9]*"
                   />
                   <p className="text-xs text-muted-foreground">
                     {t('form.targetExample')}
@@ -241,7 +245,7 @@ export default function PromptPayGenerator() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">{t('qrCode.paymentTo')}</span>
-                      <span className="text-sm">{formatDisplayTarget(target)}</span>
+                      <span className="text-sm">{displayTarget}</span>
                     </div>
                     
                     <div className="flex items-center justify-between">
