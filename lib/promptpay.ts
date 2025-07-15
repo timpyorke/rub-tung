@@ -1,73 +1,19 @@
-// Types for better type safety
-type TargetType = 'phone' | 'tax' | 'ewallet';
-type MerchantIdType = '01' | '02' | '03';
-type HexString = string;
-type CrcValue = number;
+/**
+ * PromptPay QR Code Generator
+ * 
+ * This module implements the EMV QR Code specification for Thai PromptPay payments.
+ * It generates QR code payloads for phone numbers, tax IDs, and e-wallet IDs.
+ * 
+ * @see https://www.emvco.com/emv-technologies/qrcodes/
+ * @see https://www.bot.or.th/en/our-roles/payment-systems/promptpay.html
+ */
 
-// PromptPay field identifiers
-const ID_PAYLOAD_FORMAT = '00' as const;
-const ID_POI_METHOD = '01' as const;
-const ID_MERCHANT_INFORMATION_BOT = '29' as const;
-const ID_TRANSACTION_CURRENCY = '53' as const;
-const ID_TRANSACTION_AMOUNT = '54' as const;
-const ID_COUNTRY_CODE = '58' as const;
-const ID_CRC = '63' as const;
+// ================================
+// Type Definitions
+// ================================
 
-// PromptPay values
-const PAYLOAD_FORMAT_EMV_QRCPS_MERCHANT_PRESENTED_MODE = '01' as const;
-const POI_METHOD_STATIC = '11' as const;
-const POI_METHOD_DYNAMIC = '12' as const;
-const MERCHANT_INFORMATION_TEMPLATE_ID_GUID = '00' as const;
-const BOT_ID_MERCHANT_PHONE_NUMBER: MerchantIdType = '01';
-const BOT_ID_MERCHANT_TAX_ID: MerchantIdType = '02';
-const BOT_ID_MERCHANT_EWALLET_ID: MerchantIdType = '03';
-const GUID_PROMPTPAY = 'A000000677010111' as const;
-const TRANSACTION_CURRENCY_THB = '764' as const;
-const COUNTRY_CODE_TH = 'TH' as const;
-
-// CRC-16-XMODEM implementation
-function crc16xmodem(data: string, initial: CrcValue = 0xFFFF): CrcValue {
-  let crc = initial;
-  for (let i = 0; i < data.length; i++) {
-    crc ^= data.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) {
-      if (crc & 0x8000) {
-        crc = (crc << 1) ^ 0x1021;
-      } else {
-        crc = crc << 1;
-      }
-      crc &= 0xFFFF;
-    }
-  }
-  return crc;
-}
-
-
-function sanitizeTarget(id: string): string {
-  return id.replace(/[^0-9]/g, '');
-}
-
-function formatTarget(id: string): string {
-  const numbers = sanitizeTarget(id);
-  if (numbers.length >= 13) return numbers;
-  return ('0000000000000' + numbers.replace(/^0/, '66')).slice(-13);
-}
-
-function formatAmount(amount: number): string {
-  return amount.toFixed(2);
-}
-
-function formatCrc(crcValue: CrcValue): HexString {
-  return ('0000' + crcValue.toString(16).toUpperCase()).slice(-4);
-}
-
-function f(id: string, value: string): string {
-  return [id, ('00' + value.length).slice(-2), value].join('');
-}
-
-function serialize(xs: (string | false | null | undefined | 0)[]): string {
-  return xs.filter(x => x).join('');
-}
+export type TargetType = 'phone' | 'tax' | 'ewallet';
+export type MerchantIdType = '01' | '02' | '03';
 
 export interface PromptPayOptions {
   amount?: number;
@@ -79,48 +25,281 @@ export interface PromptPayTarget {
   formatted: string;
 }
 
-export function generatePayload(target: string, options: PromptPayOptions = {}): string {
-  target = sanitizeTarget(target);
+// ================================
+// Constants - EMV QR Code Fields
+// ================================
 
-  if (!target) {
-    throw new Error('Please provide a valid phone number, tax ID, or e-wallet ID');
-  }
+const EMV_FIELDS = {
+  PAYLOAD_FORMAT: '00',
+  POI_METHOD: '01',
+  MERCHANT_INFORMATION_BOT: '29',
+  TRANSACTION_CURRENCY: '53',
+  TRANSACTION_AMOUNT: '54',
+  COUNTRY_CODE: '58',
+  CRC: '63',
+} as const;
 
-  const amount = options.amount;
-  const targetType: MerchantIdType = target.length >= 15 ? BOT_ID_MERCHANT_EWALLET_ID :
-    target.length >= 13 ? BOT_ID_MERCHANT_TAX_ID :
-      BOT_ID_MERCHANT_PHONE_NUMBER;
+const EMV_VALUES = {
+  PAYLOAD_FORMAT_EMV_QRCPS: '01',
+  POI_METHOD_STATIC: '11',
+  POI_METHOD_DYNAMIC: '12',
+  MERCHANT_TEMPLATE_ID_GUID: '00',
+  TRANSACTION_CURRENCY_THB: '764',
+  COUNTRY_CODE_TH: 'TH',
+} as const;
 
-  const data = [
-    f(ID_PAYLOAD_FORMAT, PAYLOAD_FORMAT_EMV_QRCPS_MERCHANT_PRESENTED_MODE),
-    f(ID_POI_METHOD, amount ? POI_METHOD_DYNAMIC : POI_METHOD_STATIC),
-    f(ID_MERCHANT_INFORMATION_BOT, serialize([
-      f(MERCHANT_INFORMATION_TEMPLATE_ID_GUID, GUID_PROMPTPAY),
-      f(targetType, formatTarget(target))
-    ])),
-    f(ID_COUNTRY_CODE, COUNTRY_CODE_TH),
-    f(ID_TRANSACTION_CURRENCY, TRANSACTION_CURRENCY_THB),
-    amount && f(ID_TRANSACTION_AMOUNT, formatAmount(amount))
-  ];
+// ================================
+// Constants - PromptPay Specific
+// ================================
 
-  const dataToCrc = serialize(data) + ID_CRC + '04';
-  data.push(f(ID_CRC, formatCrc(crc16xmodem(dataToCrc, 0xffff))));
-  return serialize(data);
+const PROMPTPAY = {
+  GUID: 'A000000677010111',
+  MERCHANT_ID: {
+    PHONE: '01' as MerchantIdType,
+    TAX_ID: '02' as MerchantIdType,
+    EWALLET: '03' as MerchantIdType,
+  },
+  TARGET_LENGTH: {
+    PHONE: 10,
+    TAX_ID: 13,
+    EWALLET_MIN: 15,
+  },
+} as const;
+
+// ================================
+// Utility Functions
+// ================================
+
+/**
+ * Removes all non-numeric characters from input
+ */
+function sanitizeTarget(id: string): string {
+  return id.replace(/[^0-9]/g, '');
 }
 
+/**
+ * Formats target ID according to PromptPay specification
+ * - Phone numbers: Convert to 13-digit format with country code
+ * - Tax IDs and e-wallet IDs: Use as-is if already 13+ digits
+ */
+function formatTarget(id: string): string {
+  const numbers = sanitizeTarget(id);
+  
+  // If already 13+ digits, use as-is
+  if (numbers.length >= PROMPTPAY.TARGET_LENGTH.TAX_ID) {
+    return numbers;
+  }
+  
+  // Convert phone number to 13-digit format with country code
+  const phoneWithCountryCode = numbers.replace(/^0/, '66');
+  return phoneWithCountryCode.padStart(PROMPTPAY.TARGET_LENGTH.TAX_ID, '0');
+}
+
+/**
+ * Formats amount to 2 decimal places
+ */
+function formatAmount(amount: number): string {
+  return amount.toFixed(2);
+}
+
+/**
+ * Formats CRC value to 4-digit uppercase hex string
+ */
+function formatCrc(crcValue: number): string {
+  return crcValue.toString(16).toUpperCase().padStart(4, '0');
+}
+
+/**
+ * Creates EMV QR code field with ID, length, and value
+ */
+function createField(id: string, value: string): string {
+  const length = value.length.toString().padStart(2, '0');
+  return `${id}${length}${value}`;
+}
+
+/**
+ * Serializes array of field values, filtering out falsy values
+ */
+function serialize(fields: (string | false | null | undefined | 0)[]): string {
+  return fields.filter(Boolean).join('');
+}
+
+// ================================
+// CRC Implementation
+// ================================
+
+/**
+ * CRC-16-XMODEM implementation for EMV QR Code checksum
+ * Uses polynomial 0x1021 with initial value 0xFFFF
+ */
+function calculateCrc16(data: string, initial: number = 0xFFFF): number {
+  let crc = initial;
+  
+  for (let i = 0; i < data.length; i++) {
+    crc ^= data.charCodeAt(i) << 8;
+    
+    for (let j = 0; j < 8; j++) {
+      if (crc & 0x8000) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc = crc << 1;
+      }
+      crc &= 0xFFFF;
+    }
+  }
+  
+  return crc;
+}
+
+// ================================
+// Target Type Detection
+// ================================
+
+/**
+ * Determines target type based on sanitized input length
+ */
+export function getTargetType(target: string): TargetType {
+  const clean = sanitizeTarget(target);
+  
+  if (clean.length >= PROMPTPAY.TARGET_LENGTH.EWALLET_MIN) {
+    return 'ewallet';
+  }
+  
+  if (clean.length >= PROMPTPAY.TARGET_LENGTH.TAX_ID) {
+    return 'tax';
+  }
+  
+  return 'phone';
+}
+
+/**
+ * Gets merchant ID type based on target length
+ */
+function getMerchantIdType(target: string): MerchantIdType {
+  const targetType = getTargetType(target);
+  
+  switch (targetType) {
+    case 'ewallet':
+      return PROMPTPAY.MERCHANT_ID.EWALLET;
+    case 'tax':
+      return PROMPTPAY.MERCHANT_ID.TAX_ID;
+    case 'phone':
+    default:
+      return PROMPTPAY.MERCHANT_ID.PHONE;
+  }
+}
+
+// ================================
+// Display Formatting
+// ================================
+
+/**
+ * Formats target for display with appropriate separators
+ */
 export function formatDisplayTarget(target: string): string {
   const clean = sanitizeTarget(target);
-  if (clean.length === 10 && clean.startsWith('0')) {
+  
+  // Phone number format: 081-234-5678
+  if (clean.length === PROMPTPAY.TARGET_LENGTH.PHONE && clean.startsWith('0')) {
     return clean.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-  } else if (clean.length === 13) {
+  }
+  
+  // Tax ID format: 1-2345-67890-12-3
+  if (clean.length === PROMPTPAY.TARGET_LENGTH.TAX_ID) {
     return clean.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, '$1-$2-$3-$4-$5');
   }
+  
+  // E-wallet ID: return as-is
   return clean;
 }
 
-export function getTargetType(target: string): TargetType {
+// ================================
+// Main Payload Generation
+// ================================
+
+/**
+ * Validates target input
+ */
+function validateTarget(target: string): void {
   const clean = sanitizeTarget(target);
-  if (clean.length >= 15) return 'ewallet';
-  if (clean.length >= 13) return 'tax';
-  return 'phone';
+  
+  if (!clean) {
+    throw new Error('Please provide a valid phone number, tax ID, or e-wallet ID');
+  }
+  
+  if (clean.length < PROMPTPAY.TARGET_LENGTH.PHONE) {
+    throw new Error('Target must be at least 10 digits');
+  }
 }
+
+/**
+ * Validates amount input
+ */
+function validateAmount(amount?: number): void {
+  if (amount !== undefined) {
+    if (amount < 0) {
+      throw new Error('Amount cannot be negative');
+    }
+    
+    if (amount > 1000000) {
+      throw new Error('Amount cannot exceed 1,000,000 THB');
+    }
+  }
+}
+
+/**
+ * Generates PromptPay QR code payload according to EMV specification
+ */
+export function generatePayload(target: string, options: PromptPayOptions = {}): string {
+  // Validate inputs
+  validateTarget(target);
+  validateAmount(options.amount);
+  
+  const sanitizedTarget = sanitizeTarget(target);
+  const { amount } = options;
+  
+  // Determine merchant ID type based on target
+  const merchantIdType = getMerchantIdType(sanitizedTarget);
+  
+  // Build EMV QR code fields
+  const fields = [
+    // Required fields
+    createField(EMV_FIELDS.PAYLOAD_FORMAT, EMV_VALUES.PAYLOAD_FORMAT_EMV_QRCPS),
+    createField(EMV_FIELDS.POI_METHOD, amount ? EMV_VALUES.POI_METHOD_DYNAMIC : EMV_VALUES.POI_METHOD_STATIC),
+    
+    // Merchant information (PromptPay specific)
+    createField(EMV_FIELDS.MERCHANT_INFORMATION_BOT, serialize([
+      createField(EMV_VALUES.MERCHANT_TEMPLATE_ID_GUID, PROMPTPAY.GUID),
+      createField(merchantIdType, formatTarget(sanitizedTarget)),
+    ])),
+    
+    // Transaction details
+    createField(EMV_FIELDS.COUNTRY_CODE, EMV_VALUES.COUNTRY_CODE_TH),
+    createField(EMV_FIELDS.TRANSACTION_CURRENCY, EMV_VALUES.TRANSACTION_CURRENCY_THB),
+    
+    // Optional amount field
+    amount && createField(EMV_FIELDS.TRANSACTION_AMOUNT, formatAmount(amount)),
+  ];
+  
+  // Calculate CRC
+  const dataForCrc = serialize(fields) + EMV_FIELDS.CRC + '04';
+  const crcValue = calculateCrc16(dataForCrc);
+  
+  // Add CRC field
+  fields.push(createField(EMV_FIELDS.CRC, formatCrc(crcValue)));
+  
+  return serialize(fields);
+}
+
+// ================================
+// Exports
+// ================================
+
+export {
+  sanitizeTarget,
+  formatTarget,
+  formatAmount,
+  getMerchantIdType,
+  validateTarget,
+  validateAmount,
+};

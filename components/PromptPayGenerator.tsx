@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import QRCode from 'qrcode';
-import { generatePayload, formatDisplayTarget, getTargetType } from '@/lib/promptpay';
+import { generatePayload, getTargetType } from '@/lib/promptpay';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,12 +13,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageToggle } from '@/components/ui/language-toggle';
 import { Footer } from '@/components/footer';
+import { PWAInstallPrompt } from '@/components/pwa-install-prompt';
+import { PWAUpdatePrompt } from '@/components/pwa-update-prompt';
+import { OfflineIndicator } from '@/components/offline-indicator';
 import { Download, QrCode, Smartphone, CreditCard, Wallet, AlertCircle } from 'lucide-react';
 import { useSafeTranslation } from '@/components/safe-translation';
 
 export default function PromptPayGenerator() {
   const { t } = useSafeTranslation();
   const [target, setTarget] = useState('');
+  const [displayTarget, setDisplayTarget] = useState('');
   const [amount, setAmount] = useState('');
   const [qrDataURL, setQrDataURL] = useState('');
   const [error, setError] = useState('');
@@ -63,14 +67,18 @@ export default function PromptPayGenerator() {
     }
   };
 
-  const formatTargetInput = (value: string) => {
+  const handleTargetChange = (value: string) => {
     const clean = value.replace(/[^0-9]/g, '');
+    setTarget(clean);
+    
+    // Format for display
     if (clean.length === 10 && clean.startsWith('0')) {
-      return clean.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+      setDisplayTarget(clean.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'));
     } else if (clean.length === 13) {
-      return clean.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, '$1-$2-$3-$4-$5');
+      setDisplayTarget(clean.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, '$1-$2-$3-$4-$5'));
+    } else {
+      setDisplayTarget(clean);
     }
-    return clean;
   };
 
   const getTranslatedTargetType = (target: string): string => {
@@ -102,7 +110,7 @@ export default function PromptPayGenerator() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-2 sm:p-4">
         <div className="container max-w-4xl mx-auto">
           <div className="flex justify-end gap-2 mb-4">
             <LanguageToggle />
@@ -123,7 +131,7 @@ export default function PromptPayGenerator() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-          <Card className="md:col-span-1">
+          <Card className={`md:col-span-1 ${qrDataURL ? 'hidden md:block' : ''}`}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Smartphone className="h-5 w-5" />
@@ -141,13 +149,14 @@ export default function PromptPayGenerator() {
                     {t('form.targetLabel')}
                   </Label>
                   <Input
-                    type="text"
+                    type="tel"
                     id="target"
-                    value={target}
-                    onChange={(e) => setTarget(formatTargetInput(e.target.value))}
+                    value={displayTarget}
+                    onChange={(e) => handleTargetChange(e.target.value)}
                     placeholder={t('form.targetPlaceholder')}
                     required
                     className="w-full"
+                    inputMode="numeric"
                   />
                   <p className="text-xs text-muted-foreground">
                     {t('form.targetExample')}
@@ -236,7 +245,7 @@ export default function PromptPayGenerator() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">{t('qrCode.paymentTo')}</span>
-                      <span className="text-sm">{formatDisplayTarget(target)}</span>
+                      <span className="text-sm">{displayTarget}</span>
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -264,15 +273,26 @@ export default function PromptPayGenerator() {
                     </div>
                   </div>
                   
-                  <Button 
-                    onClick={handleDownload} 
-                    variant="outline"
-                    className="w-full"
-                    size="lg"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    {t('qrCode.downloadButton')}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button 
+                      onClick={handleDownload} 
+                      variant="outline"
+                      className="flex-1"
+                      size="lg"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      {t('qrCode.downloadButton')}
+                    </Button>
+                    <Button 
+                      onClick={() => { setQrDataURL(''); setPayload(''); setError(''); }}
+                      variant="ghost"
+                      className="flex-1 md:hidden"
+                      size="lg"
+                    >
+                      <QrCode className="h-4 w-4 mr-2" />
+                      {t('form.newQRCode')}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -288,6 +308,9 @@ export default function PromptPayGenerator() {
         </div>
       </div>
       <Footer />
+      <PWAInstallPrompt />
+      <PWAUpdatePrompt />
+      <OfflineIndicator />
     </div>
   );
 }

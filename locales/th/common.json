@@ -13,7 +13,8 @@
     "amountPlaceholder": "0.00",
     "amountExample": "เว้นว่างไว้สำหรับจำนวนเงินแบบยืดหยุ่น",
     "generateButton": "สร้าง QR Code",
-    "generating": "กำลังสร้าง..."
+    "generating": "กำลังสร้าง...",
+    "newQRCode": "สร้างใหม่"
   },
   "qrCode": {
     "title": "QR Code ที่สร้างขึ้น",
