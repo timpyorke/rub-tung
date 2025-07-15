@@ -126,7 +126,7 @@ export default function PromptPayGenerator() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-          <Card className="md:col-span-1">
+          <Card className={`md:col-span-1 ${qrDataURL ? 'hidden md:block' : ''}`}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Smartphone className="h-5 w-5" />
@@ -267,15 +267,26 @@ export default function PromptPayGenerator() {
                     </div>
                   </div>
                   
-                  <Button 
-                    onClick={handleDownload} 
-                    variant="outline"
-                    className="w-full"
-                    size="lg"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    {t('qrCode.downloadButton')}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button 
+                      onClick={handleDownload} 
+                      variant="outline"
+                      className="flex-1"
+                      size="lg"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      {t('qrCode.downloadButton')}
+                    </Button>
+                    <Button 
+                      onClick={() => { setQrDataURL(''); setPayload(''); setError(''); }}
+                      variant="ghost"
+                      className="flex-1 md:hidden"
+                      size="lg"
+                    >
+                      <QrCode className="h-4 w-4 mr-2" />
+                      {t('form.newQRCode')}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
