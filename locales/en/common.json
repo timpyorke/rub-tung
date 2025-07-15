@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Rub Tung QR PromptPay",
+    "title": "Rub Tung",
     "description": "Generate QR codes for Thai PromptPay payments"
   },
   "form": {
@@ -41,7 +41,7 @@
     "toggleLanguage": "Toggle language"
   },
   "footer": {
-    "copyright": "© 2025 Rub Tung QR PromptPay. All rights reserved.",
-    "madeWith": "Made with ❤️ for Thailand"
+    "copyright": "© 2025 Rub Tung QR PromptPay.",
+    "madeWith": "Made with 🍺 for Thailand"
   }
 }

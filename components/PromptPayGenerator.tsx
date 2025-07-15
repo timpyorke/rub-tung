@@ -110,13 +110,13 @@ export default function PromptPayGenerator() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-2 sm:p-4">
-        <div className="container max-w-4xl mx-auto">
-          <div className="flex justify-end gap-2 mb-4">
+      <div className="flex-1 flex items-center justify-center p-1 sm:p-2">
+        <div className="container max-w-4xl mx-auto px-2">
+          <div className="flex justify-end gap-2 mb-2">
             <LanguageToggle />
             <ThemeToggle />
           </div>
-          <div className="text-center mb-8">
+          <div className="text-center mb-4">
             <div className="flex items-center justify-center mb-4">
               <div className="p-3 rounded-full bg-primary/10 mr-3">
                 <QrCode className="h-8 w-8 text-primary" />
@@ -125,7 +125,7 @@ export default function PromptPayGenerator() {
                 {t('app.title')}
               </h1>
             </div>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               {t('app.description')}
             </p>
           </div>
@@ -277,7 +277,7 @@ export default function PromptPayGenerator() {
                     <Button 
                       onClick={handleDownload} 
                       variant="outline"
-                      className="flex-1"
+                      className="flex-1 px-6 py-3"
                       size="lg"
                     >
                       <Download className="h-4 w-4 mr-2" />
@@ -286,7 +286,7 @@ export default function PromptPayGenerator() {
                     <Button 
                       onClick={() => { setQrDataURL(''); setPayload(''); setError(''); }}
                       variant="ghost"
-                      className="flex-1 md:hidden"
+                      className="flex-1 md:hidden px-6 py-3"
                       size="lg"
                     >
                       <QrCode className="h-4 w-4 mr-2" />
