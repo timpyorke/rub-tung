@@ -13,7 +13,8 @@
     "amountPlaceholder": "0.00",
     "amountExample": "Leave empty for flexible amount",
     "generateButton": "Generate QR Code",
-    "generating": "Generating..."
+    "generating": "Generating...",
+    "newQRCode": "New QR Code"
   },
   "qrCode": {
     "title": "Generated QR Code",
