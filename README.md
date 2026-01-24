@@ -2,6 +2,8 @@
 
 A Next.js application for generating Thai PromptPay QR codes.
 
+Try it out here: https://rub-tung.vercel.app/
+
 ## Features
 
 - Generate QR codes for Thai phone numbers, tax IDs, and e-wallet IDs
