@@ -6,10 +6,7 @@ import { generatePayload, getTargetType } from '@/lib/promptpay';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageToggle } from '@/components/ui/language-toggle';
 import { Footer } from '@/components/footer';
@@ -70,7 +67,7 @@ export default function PromptPayGenerator() {
   const handleTargetChange = (value: string) => {
     const clean = value.replace(/[^0-9]/g, '');
     setTarget(clean);
-    
+
     // Format for display
     if (clean.length === 10 && clean.startsWith('0')) {
       setDisplayTarget(clean.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'));
@@ -109,205 +106,150 @@ export default function PromptPayGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-2 sm:p-4">
-        <div className="container max-w-4xl mx-auto">
-          <div className="flex justify-end gap-2 mb-4">
-            <LanguageToggle />
-            <ThemeToggle />
+    <div className="min-h-screen bg-background flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center mb-6">
+          <div className="p-3 rounded-2xl bg-primary/5">
+            <QrCode className="h-10 w-10 text-primary" />
           </div>
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-3 rounded-full bg-primary/10 mr-3">
-                <QrCode className="h-8 w-8 text-primary" />
-              </div>
-              <h1 className="text-4xl font-bold tracking-tight">
-                {t('app.title')}
-              </h1>
-            </div>
-            <p className="text-xl text-muted-foreground">
-              {t('app.description')}
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-          <Card className={`md:col-span-1 ${qrDataURL ? 'hidden md:block' : ''}`}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Smartphone className="h-5 w-5" />
-                {t('form.paymentDetails')}
-              </CardTitle>
-              <CardDescription>
-                {t('form.paymentDetailsDescription')}
-              </CardDescription>
-            </CardHeader>
-            
-            <CardContent className="space-y-6">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="target" className="text-sm font-medium">
-                    {t('form.targetLabel')}
-                  </Label>
-                  <Input
-                    type="tel"
-                    id="target"
-                    value={displayTarget}
-                    onChange={(e) => handleTargetChange(e.target.value)}
-                    placeholder={t('form.targetPlaceholder')}
-                    required
-                    className="w-full"
-                    inputMode="numeric"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {t('form.targetExample')}
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="amount" className="text-sm font-medium">
-                    {t('form.amountLabel')}
-                  </Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                      {t('currency.symbol')}
-                    </span>
-                    <Input
-                      type="number"
-                      id="amount"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      placeholder={t('form.amountPlaceholder')}
-                      step="0.01"
-                      min="0"
-                      className="w-full pl-8"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {t('form.amountExample')}
-                  </p>
-                </div>
-
-                <Button 
-                  type="submit" 
-                  disabled={isLoading}
-                  className="w-full"
-                  size="lg"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      {t('form.generating')}
-                    </>
-                  ) : (
-                    <>
-                      <QrCode className="h-4 w-4 mr-2" />
-                      {t('form.generateButton')}
-                    </>
-                  )}
-                </Button>
-              </form>
-
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="md:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <QrCode className="h-5 w-5" />
-                {t('qrCode.title')}
-              </CardTitle>
-              <CardDescription>
-                {t('qrCode.description')}
-              </CardDescription>
-            </CardHeader>
-            
-            <CardContent className="space-y-6">
-              {qrDataURL ? (
-                <div className="space-y-4">
-                  <div className="flex justify-center">
-                    <div className="p-4 bg-white dark:bg-gray-900 rounded-lg shadow-sm border">
-                      <img 
-                        src={qrDataURL} 
-                        alt="PromptPay QR Code" 
-                        className="max-w-full h-auto"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{t('qrCode.paymentTo')}</span>
-                      <span className="text-sm">{displayTarget}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{t('qrCode.amount')}</span>
-                      <span className="text-sm">
-                        {amount ? `${t('currency.symbol')}${parseFloat(amount).toFixed(2)}` : t('qrCode.flexibleAmount')}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{t('qrCode.type')}</span>
-                      <Badge variant="secondary" className="flex items-center gap-1">
-                        {getTargetIcon(getTranslatedTargetType(target))}
-                        {getTranslatedTargetType(target)}
-                      </Badge>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="space-y-2">
-                      <span className="text-sm font-medium">{t('qrCode.payload')}</span>
-                      <div className="p-2 bg-muted rounded text-xs font-mono break-all">
-                        {payload}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Button 
-                      onClick={handleDownload} 
-                      variant="outline"
-                      className="flex-1"
-                      size="lg"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      {t('qrCode.downloadButton')}
-                    </Button>
-                    <Button 
-                      onClick={() => { setQrDataURL(''); setPayload(''); setError(''); }}
-                      variant="ghost"
-                      className="flex-1 md:hidden"
-                      size="lg"
-                    >
-                      <QrCode className="h-4 w-4 mr-2" />
-                      {t('form.newQRCode')}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <QrCode className="h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">
-                    {t('qrCode.emptyState')}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
+        <h2 className="mt-2 text-center text-3xl font-extrabold tracking-tight text-foreground">
+          {t('app.title')}
+        </h2>
+        <p className="mt-2 text-center text-sm text-muted-foreground">
+          {t('app.description')}
+        </p>
+
+        <div className="absolute top-4 right-4 flex gap-2">
+          <LanguageToggle />
+          <ThemeToggle />
         </div>
       </div>
-      <Footer />
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-card py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-border/50">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <Label htmlFor="target" className="block text-sm font-medium text-foreground">
+                {t('form.targetLabel')}
+              </Label>
+              <div className="mt-1">
+                <Input
+                  type="tel"
+                  id="target"
+                  value={displayTarget}
+                  onChange={(e) => handleTargetChange(e.target.value)}
+                  placeholder={t('form.targetPlaceholder')}
+                  required
+                  className="appearance-none block w-full px-3 py-2 border border-input rounded-md shadow-sm placeholder-muted-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  inputMode="numeric"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="amount" className="block text-sm font-medium text-foreground">
+                {t('form.amountLabel')}
+              </Label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-muted-foreground sm:text-sm">
+                    {t('currency.symbol')}
+                  </span>
+                </div>
+                <Input
+                  type="number"
+                  id="amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                  className="block w-full pl-7 pr-12 border-input rounded-md focus:ring-primary focus:border-primary sm:text-sm"
+                />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <span className="text-muted-foreground sm:text-sm">
+                    THB
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              {isLoading ? t('form.generating') : t('form.generateButton')}
+            </Button>
+          </form>
+
+          {error && (
+            <div className="mt-4 p-4 rounded-md bg-destructive/10">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <AlertCircle className="h-5 w-5 text-destructive" aria-hidden="true" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-destructive">
+                    {error}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {qrDataURL && (
+            <div className="mt-8 pt-8 border-t border-border/50">
+              <div className="flex flex-col items-center">
+                <div className="p-4 bg-white rounded-xl shadow-lg border border-gray-100 mb-6">
+                  <img
+                    src={qrDataURL}
+                    alt="PromptPay QR Code"
+                    className="w-48 h-48 object-contain"
+                  />
+                </div>
+
+                <div className="text-center w-full space-y-2 mb-6">
+                  <p className="text-sm font-medium text-foreground">{displayTarget}</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {amount ? `${parseFloat(amount).toFixed(2)} THB` : t('qrCode.flexibleAmount')}
+                  </p>
+                  <Badge variant="outline" className="mt-2 font-normal text-muted-foreground border-border/50">
+                    {getTranslatedTargetType(target)}
+                  </Badge>
+                </div>
+
+                <div className="w-full bg-yellow-50/50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/50 rounded-lg p-3 mb-6">
+                  <p className="text-xs text-yellow-700 dark:text-yellow-500 text-center">
+                    {t('qrCode.disclaimer')}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <Button
+                    variant="outline"
+                    onClick={() => { setQrDataURL(''); setPayload(''); }}
+                    className="w-full"
+                  >
+                    {t('form.newQRCode')}
+                  </Button>
+                  <Button
+                    onClick={handleDownload}
+                    className="w-full"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    {t('qrCode.downloadButton')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="mt-8 text-center">
+        <Footer />
+      </div>
       <PWAInstallPrompt />
       <PWAUpdatePrompt />
       <OfflineIndicator />

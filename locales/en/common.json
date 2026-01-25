@@ -26,7 +26,8 @@
     "payload": "Payload:",
     "downloadButton": "Download QR Code",
     "emptyState": "Enter payment details and click \"Generate QR Code\"",
-    "flexibleAmount": "Flexible amount"
+    "flexibleAmount": "Flexible amount",
+    "disclaimer": "This QR code has not been verified with the Bank of Thailand. Please verify with the remitter again."
   },
   "paymentTypes": {
     "phone": "Phone Number",

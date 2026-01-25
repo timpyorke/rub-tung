@@ -26,7 +26,8 @@
     "payload": "Payload:",
     "downloadButton": "ดาวน์โหลด QR Code",
     "emptyState": "กรอกรายละเอียดการชำระเงินและคลิก \"สร้าง QR Code\"",
-    "flexibleAmount": "จำนวนเงินแบบยืดหยุ่น"
+    "flexibleAmount": "จำนวนเงินแบบยืดหยุ่น",
+    "disclaimer": "QR นี้ยังไม่ได้ตรวจสอบกับธนาคารประเทศไทย โปรดตรวจสอบกับผู้โอนเงินอีกครั้ง"
   },
   "paymentTypes": {
     "phone": "เบอร์โทรศัพท์",

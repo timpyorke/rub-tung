@@ -12,8 +12,15 @@ interface BeforeInstallPromptEvent extends Event {
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
@@ -24,8 +31,8 @@ export function PWAInstallPrompt() {
 
     // Check if already installed
     const isInstalled = window.matchMedia('(display-mode: standalone)').matches ||
-                       (window.navigator as any).standalone ||
-                       document.referrer.includes('android-app://')
+      (window.navigator as any).standalone ||
+      document.referrer.includes('android-app://')
 
     if (isInstalled) {
       setShowPrompt(false)
@@ -34,14 +41,14 @@ export function PWAInstallPrompt() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     }
-  }, [])
+  }, [mounted])
 
   const handleInstall = async () => {
     if (!deferredPrompt) return
 
     deferredPrompt.prompt()
     const { outcome } = await deferredPrompt.userChoice
-    
+
     if (outcome === 'accepted') {
       setDeferredPrompt(null)
       setShowPrompt(false)
@@ -53,7 +60,7 @@ export function PWAInstallPrompt() {
     setDeferredPrompt(null)
   }
 
-  if (!showPrompt || !deferredPrompt) {
+  if (!mounted || !showPrompt || !deferredPrompt) {
     return null
   }
 
