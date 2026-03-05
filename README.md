@@ -53,6 +53,26 @@ This app can be easily deployed to:
 - Netlify
 - Railway
 - Any Node.js hosting platform
+- Docker
+
+### Docker Deployment
+
+1. Build the Docker image:
+```bash
+docker build -t rub-tung .
+```
+
+2. Run the container:
+```bash
+docker run -p 3000:3000 rub-tung
+```
+
+Or using Docker Compose:
+```bash
+docker-compose up --build
+```
+
+The app will be available at [http://localhost:3000](http://localhost:3000).
 
 For Vercel deployment:
 ```bash
